@@ -1,0 +1,51 @@
+%% Entity-Relationship Diagram for library.db
+%% Generated from the live schema (PRAGMA table_info / foreign_key_list).
+%% Rendered to erd.png.
+erDiagram
+    authors ||--o{ book_authors : "writes"
+    books ||--o{ book_authors : "is written by"
+    books ||--o{ book_copies : "has physical"
+    book_copies ||--o{ borrowings : "is lent in"
+    members ||--o{ borrowings : "makes"
+
+    authors {
+        INTEGER author_id PK
+        TEXT name UK "NOT NULL"
+    }
+
+    books {
+        INTEGER book_id PK
+        TEXT title "NOT NULL"
+        INTEGER publication_year
+        TEXT isbn UK "10 or 13 chars"
+    }
+
+    book_authors {
+        INTEGER book_id PK, FK "ON DELETE CASCADE"
+        INTEGER author_id PK, FK "ON DELETE RESTRICT"
+        INTEGER author_order "NOT NULL, default 1"
+    }
+
+    book_copies {
+        INTEGER copy_id PK
+        INTEGER book_id FK "NOT NULL"
+        TEXT barcode UK
+        TEXT acquired_date "YYYY-MM-DD"
+        TEXT condition_status "in_circulation, damaged, lost, withdrawn"
+    }
+
+    members {
+        INTEGER member_id PK
+        TEXT name "NOT NULL"
+        TEXT email UK "NOT NULL"
+        TEXT joined_date "NOT NULL, YYYY-MM-DD"
+    }
+
+    borrowings {
+        INTEGER borrowing_id PK
+        INTEGER copy_id FK "one open loan per copy"
+        INTEGER member_id FK "NOT NULL"
+        TEXT checkout_date "NOT NULL"
+        TEXT due_date "NOT NULL, >= checkout_date"
+        TEXT return_date "NULL = still out"
+    }
